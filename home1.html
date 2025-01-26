@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Displaying Dynamic Directions</title>
+    <style>
+      /* Optional: Makes the sample page fill the window. */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#container {
+  height: 100%;
+  display: flex;
+}
+
+#sidebar {
+  flex-basis: 15rem;
+  flex-grow: 1;
+  padding: 1rem;
+  max-width: 30rem;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+#map {
+  flex-basis: 0;
+  flex-grow: 4;
+  height: 100%;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: "Roboto", "sans-serif";
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+#floating-panel {
+  background-color: #fff;
+  border: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+  margin: 10px;
+  padding: 0 0.5em;
+  font: 400 18px Roboto, Arial, sans-serif;
+  overflow: hidden;
+  padding: 5px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 30px;
+  height: auto;
+}
+
+#map {
+  flex: auto;
+}
+
+#sidebar {
+  flex: 0 1 auto;
+  padding: 0;
+}
+#sidebar > div {
+  padding: 0.5rem;
+}
+
+
+    </style>
+
+  </head>
+  <body>
+    <div id="floating-panel">
+      <strong>Start:</strong>
+      <select id="start">
+        <option value="current">Your Location</option> <!-- Default to current location -->
+        <option value="28.64144,77.22185 ">Platform 16</option>
+        <option value="28.64384, 77.21925">Cloak Room</option>
+        <option value="28.64347, 77.21938">Platform 2</option>
+        <option value="28.64354,77.21933">Platform 3</option>
+        <option value="28.64410, 77.21975">Platform 4</option>
+        <option value="28.64298, 77.21973">Platform 5</option>
+        <option value="28.64319, 77.22068">Platform 12</option>
+        <option value="28.64294, 77.21909">New Delhi Railway Station</option>
+        <option value="28.642, 77.21923">Dorimatory</option>
+      </select>
+
+      <strong>End:</strong>
+      <select id="end">
+          <option value="28.64319, 77.22068">Platform 12</option>
+        <option value="28.64384, 77.21925">Cloak Room</option>
+        <option value="28.64347, 77.21938">Platform 2</option>
+        <option value="28.64354,77.21933">Platform 3</option>
+        <option value="28.64410, 77.21975">Platform 4</option>
+        <option value="28.64298, 77.21973">Platform 5</option>
+        <option value="28.64144,77.22185 ">Platform 16</option>
+        <option value="28.64294, 77.21909">New Delhi Railway Station</option>
+        <option value="28.642, 77.21923">Dorimatory</option>
+      </select>
+    </div>
+    <div id="container">
+      <div id="map" ></div>
+      <div id="sidebar"></div>
+    </div>
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD2adxehgK6Yi9GFY8ltaecsTAiXCFiHR4&callback=initMap&v=weekly"
+      defer
+    ></script>
+    <script>
+      let map, directionsRenderer, directionsService, userLocation;
+
+function initMap() {
+  directionsRenderer = new google.maps.DirectionsRenderer();
+  directionsService = new google.maps.DirectionsService();
+
+  map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 20,
+    center: { lat: 28.6139, lng: 77.2090 }, // Default to New Delhi
+    heading: 320,
+    tilt: 47.5,
+    mapId: "f71165c1714482fd",
+    disableDefaultUI: true,
+  });
+  const buttons = [
+    ["Rotate Left", "rotate", 20, google.maps.ControlPosition.LEFT_CENTER],
+    ["Rotate Right", "rotate", -20, google.maps.ControlPosition.RIGHT_CENTER],
+    ["Tilt Down", "tilt", 20, google.maps.ControlPosition.TOP_CENTER],
+    ["Tilt Up", "tilt", -20, google.maps.ControlPosition.BOTTOM_CENTER],
+  ];
+
+  buttons.forEach(([text, mode, amount, position]) => {
+    const controlDiv = document.createElement("div");
+    const controlUI = document.createElement("button");
+
+    controlUI.classList.add("ui-button");
+    controlUI.innerText = `${text}`;
+    controlUI.addEventListener("click", () => {
+      adjustMap(mode, amount);
+    });
+    controlDiv.appendChild(controlUI);
+    map.controls[position].push(controlDiv);
+  });
+
+  const adjustMap = function (mode, amount) {
+    switch (mode) {
+      case "tilt":
+        map.setTilt(map.getTilt() + amount);
+        break;
+      case "rotate":
+        map.setHeading(map.getHeading() + amount);
+        break;
+      default:
+        break;
+    }
+  };
+
+  directionsRenderer.setMap(map);
+  directionsRenderer.setPanel(document.getElementById("sidebar"));
+
+  const control = document.getElementById("floating-panel");
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
+
+  // Fetch user's current location
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        map.setCenter(userLocation); // Center the map to the user's location
+
+        // Add marker for user's location
+        new google.maps.Marker({
+          position: userLocation,
+          map: map,
+          title: "Your Location",
+        });
+
+        // Calculate route when start or end location changes
+        document.getElementById("start").addEventListener("change", () => {
+          calculateAndDisplayRoute(directionsService, directionsRenderer);
+        });
+        document.getElementById("end").addEventListener("change", () => {
+          calculateAndDisplayRoute(directionsService, directionsRenderer);
+        });
+      },
+      () => {
+        alert("Geolocation failed or is not supported by this browser.");
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by this browser.");
+  }
+}
+
+// Function to calculate and display route from the selected start and end locations
+function calculateAndDisplayRoute(directionsService, directionsRenderer) {
+  // Get selected start location
+  const startValue = document.getElementById("start").value;
+  let startLocation;
+
+  if (startValue === "current") {
+    startLocation = userLocation; // User's current location
+  } else {
+    const startCoords = startValue.split(',');
+    startLocation = new google.maps.LatLng(parseFloat(startCoords[0]), parseFloat(startCoords[1]));
+  }
+
+  // Get selected end location
+  const endValue = document.getElementById("end").value.split(',');
+  const endLocation = new google.maps.LatLng(parseFloat(endValue[0]), parseFloat(endValue[1]));
+
+  // Add marker for the end location
+  // new google.maps.Marker({
+  //   position: endLocation,
+  //   map: map,
+  //   title: "Destination",
+  // });
+
+  directionsService
+    .route({
+      origin: startLocation, // Start from selected start location (current or dropdown choice)
+      destination: endLocation, // End at the selected destination
+      travelMode: google.maps.TravelMode.WALKING,
+    })
+    .then((response) => {
+      directionsRenderer.setDirections(response);
+    })
+    .catch((e) => {
+      window.alert("Directions request failed due to " + e);
+    });
+}
+
+// Make the initMap function available to the global scope
+window.initMap = initMap;
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Controlled Accessibility Check</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            color: #333;
+            text-align: center;
+            padding: 50px 20px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin-bottom: 30px;
+            color: #007bff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+            border: none;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #00c6ff, #007bff);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+        }
+
+        #result {
+            margin-top: 30px;
+            font-size: 22px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: #28a745;
+        }
+
+        #status {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #007bff;
+            transition: color 0.3s ease;
+        }
+
+        .circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            display: inline-block;
+            line-height: 130px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            margin: 30px 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .yes-circle {
+            background-color: #28a745;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.5);
+        }
+
+        .no-circle {
+            background-color: #dc3545;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.5);
+        }
+
+        .yes-circle:hover {
+            background-color: #218838;
+        }
+
+        .no-circle:hover {
+            background-color: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .circle {
+                width: 100px;
+                height: 100px;
+                font-size: 18px;
+                line-height: 100px;
+            }
+            button {
+                font-size: 16px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .circle {
+                width: 80px;
+                height: 80px;
+                font-size: 16px;
+                line-height: 80px;
+            }
+            button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+        }
+
+        /* Login button styling */
+        .login-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .chatbot-circle {
+    position: fixed;
+    bottom: 20px;
+    right: 50px;
+    width: 160px; /* Double the width */
+    height: 160px; /* Double the height */
+    border-radius: 50%;
+    background-color: #800080; /* Purple color */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; /* Increase font size to match the new size */
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chatbot-circle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+.chatbot-circle {
+        position: fixed;
+        bottom: 20px;
+        right: 50px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background-color: #800080; /* Purple color */
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .chatbot-circle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* New button styling for bottom-left */
+    .chatbot-circle-left {
+        position: fixed;
+        bottom: 20px;
+        left: 50px; /* Adjusted to left */
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background-color: #ff4500; /* Orange color */
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .chatbot-circle-left:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+</style>
+</head>
+<body>
+    <a href="login.html" class="login-button" id="logoutButton">Logout</a>
+
+    <div class="container">
+        <h1>Are you visually impaired?</h1>
+        <div id="status">Please click anywhere to start.</div>
+        <div id="result"></div>
+
+        <div>
+            <div class="circle yes-circle" id="yesCircle">Yes</div>
+            <div class="circle no-circle" id="noCircle">No</div>
+        </div>
+    </div>
+    
+    <!-- <div> class="chatbot-circle" id="chatcircle">Train Status</div> -->
+
+<!-- New Button in Bottom Left -->
+<div class="chatbot-circle-left" id="chatcircleLeft">Chatbot</div>
+    <div class="chatbot-circle" id="chatcircle">Train Status</div>
+
+
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const synth = window.speechSynthesis;
+    
+        if (!SpeechRecognition || !synth) {
+            document.getElementById('status').textContent = 'Your browser does not support Speech Recognition or Speech Synthesis. Please try using Chrome.';
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+    
+            function askQuestion() {
+                const utterance = new SpeechSynthesisUtterance('Are you visually impaired? Please say yes or no.');
+                synth.speak(utterance);
+    
+                utterance.onend = function () {
+                    recognition.start();
+                };
+            }
+    
+            recognition.onresult = function (event) {
+                const result = event.results[0][0].transcript.toLowerCase();
+                document.getElementById('status').textContent = `You said: ${result}`;
+    
+                if (result.includes('yes')) {
+                    document.getElementById('result').textContent = 'You are visually impaired. Redirecting...';
+                    window.location.href = 'home.html';  // Redirect to home.html for visually impaired
+                } else if (result.includes('no')) {
+                    document.getElementById('result').textContent = 'You are not visually impaired. Redirecting...';
+                    window.location.href = 'home1.html';  // Redirect to home1.html for non-visually impaired
+                } else {
+                    askQuestion();  // Ask again if the response is not understood
+                }
+            };
+    
+            recognition.onerror = function () {
+                askQuestion(); // Ask again if an error occurs
+            };
+    
+            recognition.onend = function () {
+                // Do nothing here to avoid the "waiting for your response" message
+            };
+    
+            // Start the question automatically after the page loads
+            window.onload = function() {
+                askQuestion();
+            };
+        }
+    
+        // Add click event listeners for Yes and No circles
+        document.getElementById('yesCircle').onclick = function() {
+            document.getElementById('result').textContent = 'You selected: Yes. Redirecting...';
+            window.location.href = 'home.html';  // Redirect to home.html for visually impaired
+        };
+    
+        document.getElementById('noCircle').onclick = function() {
+            document.getElementById('result').textContent = 'You selected: No. Redirecting...';
+            window.location.href = 'home1.html';  // Redirect to home1.html for non-visually impaired
+        };
+    
+        // Add click event listener for the Train Status circle
+        document.getElementById('chatcircle').onclick = function() {
+            window.location.href = 'h.html';  // Redirect to h.html for Train Status
+        };
+        document.getElementById('chatcircleLeft').onclick = function() {
+        window.location.href = "https://railwayschatbot.streamlit.app/";  // Redirect to support.html for this button
+    };
+    </script>
+
+</body>
+</html>
